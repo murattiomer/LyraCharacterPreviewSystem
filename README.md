@@ -8,7 +8,7 @@ In one sentence: **Manages a client-side preview session; gathers the pawn's loa
 
 ## System flow
 
-![System flow](https://raw.githubusercontent.com/omergfx28/LyraCharacterPreviewSystem/main/Images/Screenshot_1.png)
+![System flow](https://raw.githubusercontent.com/murattiomer/LyraCharacterPreviewSystem/main/Images/Screenshot_1.png)
 
 ## Components
 
@@ -23,7 +23,7 @@ In one sentence: **Manages a client-side preview session; gathers the pawn's loa
 
 ## Dependency directions
 
-![Dependency directions](https://raw.githubusercontent.com/omergfx28/LyraCharacterPreviewSystem/main/Images/Screenshot_2.png)
+![Dependency directions](https://raw.githubusercontent.com/murattiomer/LyraCharacterPreviewSystem/main/Images/Screenshot_2.png)
 
 The rule: **arrows are one-way.**
 
