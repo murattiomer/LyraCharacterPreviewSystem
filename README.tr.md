@@ -8,7 +8,7 @@ Bir cümle: **Client tarafında bir preview session'ı yönetir, pawn'ın loadou
 
 ## Sistem akışı
 
-![Sistem akışı](images/screenshot_1.png)
+![Sistem akışı](https://raw.githubusercontent.com/omergfx28/LyraCharacterPreviewSystem/main/Images/Screenshot_1.png)
 
 ## Bileşenler
 
@@ -23,7 +23,7 @@ Bir cümle: **Client tarafında bir preview session'ı yönetir, pawn'ın loadou
 
 ## Bağımlılık yönleri
 
-![Bağımlılık yönleri](images/screenshot_2.png)
+![Bağımlılık yönleri](https://raw.githubusercontent.com/omergfx28/LyraCharacterPreviewSystem/main/Images/Screenshot_2.png)
 
 Kural: **oklar tek yönlüdür.**
 
