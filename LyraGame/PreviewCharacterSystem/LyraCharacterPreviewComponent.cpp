@@ -9,8 +9,10 @@
 #include "Engine/SkeletalMesh.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Engine/World.h"
-#include "Character/LyraCharacterPreview.h"
+#include "LyraCharacterPreview.h"
 #include "IPreviewVisualsProvider.h"
+#include "TimerManager.h"
+#include "Animation/AnimInstance.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraCharacterPreviewComponent)
 

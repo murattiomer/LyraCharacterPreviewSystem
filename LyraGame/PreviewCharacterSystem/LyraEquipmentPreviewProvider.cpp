@@ -5,13 +5,11 @@
 #include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 #include "LyraGameplayTags.h"
-
 #include "Equipment/LyraEquipmentManagerComponent.h"
 #include "Equipment/LyraEquipmentInstance.h"
 #include "Equipment/LyraQuickBarComponent.h"
 #include "Inventory/LyraInventoryItemDefinition.h"
 #include "Inventory/LyraInventoryItemInstance.h"
-#include "Inventory/LyraItemFunctionLibrary.h"
 #include "Weapons/LyraWeaponInstance.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(LyraEquipmentPreviewProvider)
@@ -62,9 +60,8 @@ void ULyraEquipmentPreviewProvider::GatherPreviewVisuals(FCharacterPreviewVisual
 		ULyraInventoryItemInstance* ItemInstance =
 			Cast<ULyraInventoryItemInstance>(EInstance->GetInstigator());
 		if (!ItemInstance) continue;
-
-		const TSubclassOf<ULyraInventoryItemDefinition> ItemDef =
-			ULyraItemFunctionLibrary::GetItemDefinition(ItemInstance);
+		
+		const TSubclassOf<ULyraInventoryItemDefinition> ItemDef = ItemInstance->GetItemDef();
 		if (!ItemDef) continue;
 
 		TArray<FLyraEquipmentActorToSpawn> ActorsToSpawn;

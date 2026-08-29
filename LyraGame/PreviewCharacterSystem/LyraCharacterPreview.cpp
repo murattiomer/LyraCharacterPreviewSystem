@@ -2,6 +2,7 @@
 
 #include "LyraCharacterPreview.h"
 
+#include "Animation/AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/MeshComponent.h"

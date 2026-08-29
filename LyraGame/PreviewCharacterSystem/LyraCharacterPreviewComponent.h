@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LyraCharacterPreview.h"
 #include "Components/ActorComponent.h"
 #include "LyraCharacterPreviewComponent.generated.h"
 
