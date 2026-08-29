@@ -18,7 +18,6 @@ class UAnimInstance;
 
 /**
  * Client-only display surface: shows a body skeletal mesh plus resolved attachment meshes.
- * Knows nothing about items, equipment, inventory, or replication — it renders what it is handed.
  */
 UCLASS()
 class ALyraCharacterPreview : public AActor
@@ -26,6 +25,8 @@ class ALyraCharacterPreview : public AActor
 	GENERATED_BODY()
 
 public:
+	
+	/** Default constructor. */
 	ALyraCharacterPreview();
 
 	/** Sets the body skeletal mesh. */

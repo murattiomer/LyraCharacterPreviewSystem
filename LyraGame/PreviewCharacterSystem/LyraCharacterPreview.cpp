@@ -35,6 +35,7 @@ ALyraCharacterPreview::ALyraCharacterPreview()
 	KeyLight->InnerConeAngle = 30.f;
 	KeyLight->LightColor = FColor::White;
 	KeyLight->SetLightingChannels(false, false, true);
+	KeyLight->SetCastShadows(false);
 
 	FillLight = CreateDefaultSubobject<URectLightComponent>(TEXT("FillLight"));
 	FillLight->SetupAttachment(Root);
@@ -43,6 +44,7 @@ ALyraCharacterPreview::ALyraCharacterPreview()
 	FillLight->Intensity = 5000.f;
 	FillLight->LightColor = FColor(200, 220, 255);
 	FillLight->SetLightingChannels(false, false, true);
+	FillLight->SetCastShadows(false);
 }
 
 void ALyraCharacterPreview::SetBodyMesh(USkeletalMesh* InMesh)

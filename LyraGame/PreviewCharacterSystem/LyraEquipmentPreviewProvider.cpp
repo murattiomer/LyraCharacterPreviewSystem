@@ -2,12 +2,14 @@
 
 #include "LyraEquipmentPreviewProvider.h"
 
+#include "Animation/AnimInstance.h"
+#include "Cosmetics/LyraPawnComponent_CharacterParts.h"
 #include "GameFramework/Pawn.h"
 #include "Engine/World.h"
-#include "LyraGameplayTags.h"
-#include "Equipment/LyraEquipmentManagerComponent.h"
-#include "Equipment/LyraEquipmentInstance.h"
-#include "Equipment/LyraQuickBarComponent.h"
+#include "EquipmentSystem/LyraEquipmentManagerComponent.h"
+#include "EquipmentSystem/LyraEquipmentInstance.h"
+#include "EquipmentSystem/LyraItemFunctionLibrary.h"
+#include "EquipmentSystem/LyraQuickBarComponent.h"
 #include "Inventory/LyraInventoryItemDefinition.h"
 #include "Inventory/LyraInventoryItemInstance.h"
 #include "Weapons/LyraWeaponInstance.h"
@@ -18,7 +20,6 @@ ULyraEquipmentPreviewProvider::ULyraEquipmentPreviewProvider(const FObjectInitia
 	: Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	SetIsReplicatedByDefault(false);
 }
 
 void ULyraEquipmentPreviewProvider::BeginPlay()
@@ -44,21 +45,16 @@ void ULyraEquipmentPreviewProvider::GatherPreviewVisuals(FCharacterPreviewVisual
 	const APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn) return;
 
-	ULyraEquipmentManagerComponent* EquipManager =
-		const_cast<ULyraEquipmentManagerComponent*>(
-			Pawn->FindComponentByClass<ULyraEquipmentManagerComponent>());
+	ULyraEquipmentManagerComponent* EquipManager = const_cast<ULyraEquipmentManagerComponent*>(Pawn->FindComponentByClass<ULyraEquipmentManagerComponent>());
 	if (!EquipManager) return;
-
-	// Resolve every equipped instance's spawn info down to meshes.
-	const TArray<ULyraEquipmentInstance*> EquipInstances =
-		EquipManager->GetEquipmentInstancesOfType(ULyraEquipmentInstance::StaticClass());
+	
+	const TArray<ULyraEquipmentInstance*> EquipInstances = EquipManager->GetEquipmentInstancesOfType(ULyraEquipmentInstance::StaticClass());
 
 	for (ULyraEquipmentInstance* EInstance : EquipInstances)
 	{
 		if (!EInstance) continue;
 
-		ULyraInventoryItemInstance* ItemInstance =
-			Cast<ULyraInventoryItemInstance>(EInstance->GetInstigator());
+		ULyraInventoryItemInstance* ItemInstance = Cast<ULyraInventoryItemInstance>(EInstance->GetInstigator());
 		if (!ItemInstance) continue;
 		
 		const TSubclassOf<ULyraInventoryItemDefinition> ItemDef = ItemInstance->GetItemDef();
@@ -69,7 +65,6 @@ void ULyraEquipmentPreviewProvider::GatherPreviewVisuals(FCharacterPreviewVisual
 
 		for (const FLyraEquipmentActorToSpawn& SpawnInfo : ActorsToSpawn)
 		{
-			// We ignore custom actor classes on purpose: preview is mesh-only.
 			FPreviewAttachmentSpec Spec;
 			Spec.AttachSocket = SpawnInfo.AttachSocket;
 			Spec.AttachTransform = SpawnInfo.AttachTransform;
@@ -88,16 +83,18 @@ void ULyraEquipmentPreviewProvider::GatherPreviewVisuals(FCharacterPreviewVisual
 				Out.Attachments.Add(Spec);
 			}
 		}
-	}
-
-	// Anim class comes from the held weapon, if any.
-	if (const ULyraWeaponInstance* WeaponInstance = EquipManager->GetFirstHeldInstanceOfType<ULyraWeaponInstance>())
-	{
-		if (const ULyraInventoryItemInstance* WeaponItem =
-				Cast<ULyraInventoryItemInstance>(WeaponInstance->GetInstigator()))
+		
+		if (const ULyraPawnComponent_CharacterParts* CosmeticComp = Pawn->FindComponentByClass<ULyraPawnComponent_CharacterParts>())
 		{
-			Out.AnimClass = ULyraItemFunctionLibrary::GetItemPreviewAnimClass(
-				WeaponItem->GetItemDef(), FGameplayTagContainer());
+			Out.CosmeticTags = CosmeticComp->GetCombinedTags(FGameplayTag::EmptyTag);
+		}
+		
+		if (const ULyraWeaponInstance* WeaponInstance = EquipManager->GetHeldInstanceOfType<ULyraWeaponInstance>())
+		{
+			if (const ULyraInventoryItemInstance* WeaponItem = Cast<ULyraInventoryItemInstance>(WeaponInstance->GetInstigator()))
+			{
+				Out.AnimClass = ULyraItemFunctionLibrary::GetItemPreviewAnimClass(WeaponItem->GetItemDef(), Out.CosmeticTags);
+			}
 		}
 	}
 }
@@ -110,11 +107,11 @@ void ULyraEquipmentPreviewProvider::RegisterListeners()
 	UGameplayMessageSubsystem& Msg = UGameplayMessageSubsystem::Get(World);
 
 	QuickBarListenerHandle = Msg.RegisterListener<FLyraQuickBarActiveIndexChangedMessage>(
-		LyraGameplayTags::Lyra_QuickBar_Message_ActiveIndexChanged,
+		TAG_Lyra_QuickBar_Message_ActiveIndexChanged,
 		this, &ULyraEquipmentPreviewProvider::OnQuickbarChanged);
 
 	EquipmentListenerHandle = Msg.RegisterListener<FLyraEquipmentVisibilityMessage>(
-		LyraGameplayTags::Lyra_Equipment_Message_VisibilityChanged,
+		TAG_Lyra_Equipment_Message_VisibilityChanged,
 		this, &ULyraEquipmentPreviewProvider::OnEquipmentChanged);
 }
 
@@ -135,8 +132,7 @@ void ULyraEquipmentPreviewProvider::OnEquipmentChanged(FGameplayTag Channel, con
 	ULyraInventoryItemInstance* Item = Cast<ULyraInventoryItemInstance>(Message.Instigator);
 	if (!Item) return;
 
-	const ULyraEquipmentManagerComponent* EquipManager =
-		GetOwner()->FindComponentByClass<ULyraEquipmentManagerComponent>();
+	const ULyraEquipmentManagerComponent* EquipManager = GetOwner()->FindComponentByClass<ULyraEquipmentManagerComponent>();
 	if (!EquipManager || EquipManager->GetInstanceForItem(Item) == nullptr)
 	{
 		return;

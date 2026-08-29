@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "LyraCharacterPreview.h"
+#include "Cosmetics/LyraCosmeticAnimationTypes.h"
 #include "Components/ActorComponent.h"
 #include "LyraCharacterPreviewComponent.generated.h"
 
@@ -18,9 +19,7 @@ class UAnimInstance;
 class IPreviewVisualsProvider;
 
 /**
- * Manages a client-only character preview session: owns the ALyraCharacterPreview actor,
- * drives a SceneCaptureComponent2D into a render target, holds zoom/rotation state, and
- * refreshes visuals by asking an IPreviewVisualsProvider. Knows no equipment/inventory types.
+ * Manages a client-only character preview session.
  */
 UCLASS(Blueprintable, meta=(BlueprintSpawnableComponent))
 class ULyraCharacterPreviewComponent : public UActorComponent
@@ -29,11 +28,24 @@ class ULyraCharacterPreviewComponent : public UActorComponent
 
 public:
 
+	/** Default constructor. */
 	UE_API ULyraCharacterPreviewComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	/** Called every frame to update the capture component's transform and refresh visuals if requested. */
 	UE_API virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	/** Called when the component is registered; spawns the preview actor and render target. */
 	UE_API virtual void BeginPlay() override;
+	
+	/** Called when the component is unregistered; destroys the preview actor and render target. */
 	UE_API virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
+	/** Finds the character preview component on the specified actor, if any. */
+	UFUNCTION(BlueprintPure)
+	static ULyraCharacterPreviewComponent* FindCharacterPreviewComponent(const AActor* Actor)
+	{
+		return (Actor ? Actor->FindComponentByClass<ULyraCharacterPreviewComponent>() : nullptr);
+	}
 
 	/** Spawns the preview actor and binds to the pawn's visuals provider. */
 	UE_API void InitPreview(APawn* SourcePawn);
@@ -71,9 +83,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Setup")
 	TSubclassOf<ALyraCharacterPreview> PreviewActorClass;
 
-	/** Fallback anim instance class used when the provider returns none. */
+	/** Fallback anim selection used when the provider returns none. Picked by cosmetic tags. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Setup")
-	TSubclassOf<UAnimInstance> PreviewAnimClass;
+	FLyraAnimLayerSelectionSet PreviewAnimSelection;
 
 	/** World location where the preview actor is spawned, well below the playable area. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Setup")
@@ -95,27 +107,35 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Setup")
 	float CaptureFOV = 15.f;
 
+	/** Minimum zoom distance, clamped to ZoomMin/ZoomMax. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Zoom")
 	float ZoomMin = 400.f;
 
+	/** Maximum zoom distance, clamped to ZoomMin/ZoomMax. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Zoom")
 	float ZoomMax = 900.f;
 
+	/** Step size for each zoom delta. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Zoom")
 	float ZoomStep = 10.f;
 
+	/** Current zoom distance, clamped to ZoomMin/ZoomMax. */
 	UPROPERTY()
 	float CurrentZoom = 600.f;
 
+	/** Minimum rotation angle, clamped to RotationMin/RotationMax. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Rotation")
 	float RotationMin = -180.f;
-
+	
+	/** Maximum rotation angle, clamped to RotationMin/RotationMax. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Rotation")
 	float RotationMax = 180.f;
 
+	/** Step size for each rotation delta. */
 	UPROPERTY(EditDefaultsOnly, Category = "Preview|Rotation")
 	float RotationStep = 0.3f;
 
+	/** Current rotation angle, clamped to RotationMin/RotationMax. */
 	UPROPERTY()
 	float CurrentRotation = 0.f;
 
@@ -135,19 +155,24 @@ private:
 
 	/** Called when the bound provider signals its visuals changed. */
 	UE_API void OnProviderVisualsChanged();
-
+	
+	/** Called when the bound provider is destroyed. */
 	UFUNCTION()
 	void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
 
+	/** The preview actor spawned for this component. */
 	UPROPERTY()
 	TObjectPtr<ALyraCharacterPreview> PreviewActor;
 
+	/** The SceneCaptureComponent2D used to render the preview actor into a render target. */
 	UPROPERTY()
 	TObjectPtr<USceneCaptureComponent2D> CaptureComponent;
 
+	/** The render target used to hold the preview actor's image. */
 	UPROPERTY()
 	TObjectPtr<UTextureRenderTarget2D> RenderTarget;
 
+	/** The pawn whose appearance is being previewed. */
 	UPROPERTY()
 	TObjectPtr<APawn> SourcePawnRef;
 

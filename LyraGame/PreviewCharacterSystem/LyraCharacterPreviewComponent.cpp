@@ -38,12 +38,6 @@ void ULyraCharacterPreviewComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Client-only: never run on a dedicated server.
-	if (GetNetMode() == NM_DedicatedServer)
-	{
-		return;
-	}
-
 	if (APlayerController* PC = Cast<APlayerController>(GetOwner()))
 	{
 		PC->OnPossessedPawnChanged.AddDynamic(this, &ULyraCharacterPreviewComponent::OnPossessedPawnChanged);
@@ -75,14 +69,12 @@ void ULyraCharacterPreviewComponent::InitPreview(APawn* SourcePawn)
 
 	SpawnPreviewActor();
 	if (!PreviewActor) return;
-
-	// Body mesh is the pawn's own mesh (fixed, not loadout-driven).
+	
 	if (const USkeletalMeshComponent* PawnMesh = SourcePawn->FindComponentByClass<USkeletalMeshComponent>())
 	{
 		PreviewActor->SetBodyMesh(PawnMesh->GetSkeletalMeshAsset());
 	}
-
-	// Bind to the pawn's visuals provider so it can tell us when to re-gather.
+	
 	if (UActorComponent* ProviderComp = FindProviderComponent())
 	{
 		BoundProviderComponent = ProviderComp;
@@ -255,7 +247,10 @@ void ULyraCharacterPreviewComponent::RefreshCharacterPreview()
 		}
 	}
 
-	PreviewActor->SetBodyAnimClass(Visuals.AnimClass ? Visuals.AnimClass : PreviewAnimClass);
-
-	// Attachments are components of PreviewActor, so the single ShowOnly entry covers them.
+	TSubclassOf<UAnimInstance> AnimClassToUse = Visuals.AnimClass;
+	if (!AnimClassToUse)
+	{
+		AnimClassToUse = PreviewAnimSelection.SelectBestLayer(Visuals.CosmeticTags);
+	}
+	PreviewActor->SetBodyAnimClass(AnimClassToUse);
 }

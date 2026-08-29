@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Templates/SubclassOf.h"
 #include "UObject/Interface.h"
 #include "IPreviewVisualsProvider.generated.h"
@@ -34,6 +35,7 @@ struct FCharacterPreviewVisuals
 
 	UPROPERTY() TSubclassOf<UAnimInstance> AnimClass = nullptr;
 	UPROPERTY() TArray<FPreviewAttachmentSpec> Attachments;
+	UPROPERTY() FGameplayTagContainer CosmeticTags;
 };
 
 UINTERFACE(MinimalAPI)
@@ -44,8 +46,6 @@ class UPreviewVisualsProvider : public UInterface
 
 /**
  * Implemented by whatever knows how to turn a pawn's loadout into displayable meshes.
- * The preview never sees equipment/inventory types — it receives resolved meshes through
- * GatherPreviewVisuals and refreshes when OnPreviewVisualsChanged fires.
  */
 class IPreviewVisualsProvider
 {
