@@ -26,11 +26,6 @@ void ULyraEquipmentPreviewProvider::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (GetNetMode() == NM_DedicatedServer)
-	{
-		return;
-	}
-
 	RegisterListeners();
 }
 
@@ -45,7 +40,7 @@ void ULyraEquipmentPreviewProvider::GatherPreviewVisuals(FCharacterPreviewVisual
 	const APawn* Pawn = Cast<APawn>(GetOwner());
 	if (!Pawn) return;
 
-	ULyraEquipmentManagerComponent* EquipManager = const_cast<ULyraEquipmentManagerComponent*>(Pawn->FindComponentByClass<ULyraEquipmentManagerComponent>());
+	ULyraEquipmentManagerComponent* EquipManager = Pawn->FindComponentByClass<ULyraEquipmentManagerComponent>();
 	if (!EquipManager) return;
 	
 	const TArray<ULyraEquipmentInstance*> EquipInstances = EquipManager->GetEquipmentInstancesOfType(ULyraEquipmentInstance::StaticClass());

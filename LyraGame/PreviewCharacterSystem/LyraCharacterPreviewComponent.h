@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "LyraCharacterPreview.h"
 #include "Cosmetics/LyraCosmeticAnimationTypes.h"
 #include "Components/ActorComponent.h"
 #include "LyraCharacterPreviewComponent.generated.h"
@@ -42,10 +41,7 @@ public:
 	
 	/** Finds the character preview component on the specified actor, if any. */
 	UFUNCTION(BlueprintPure)
-	static ULyraCharacterPreviewComponent* FindCharacterPreviewComponent(const AActor* Actor)
-	{
-		return (Actor ? Actor->FindComponentByClass<ULyraCharacterPreviewComponent>() : nullptr);
-	}
+	static ULyraCharacterPreviewComponent* FindCharacterPreviewComponent(const AActor* Actor);
 
 	/** Spawns the preview actor and binds to the pawn's visuals provider. */
 	UE_API void InitPreview(APawn* SourcePawn);
@@ -67,7 +63,7 @@ public:
 
 	/** Returns true if the preview actor has been successfully spawned. */
 	UFUNCTION(BlueprintPure, Category = "Preview")
-	UE_API bool IsPreviewReady() const { return IsValid(PreviewActor); }
+	UE_API bool IsPreviewReady() const;
 
 	/** Returns the render target written to by the SceneCaptureComponent2D. */
 	UFUNCTION(BlueprintPure, Category = "Preview")

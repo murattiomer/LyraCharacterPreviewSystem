@@ -60,6 +60,12 @@ void ULyraCharacterPreviewComponent::EndPlay(const EEndPlayReason::Type EndPlayR
 	Super::EndPlay(EndPlayReason);
 }
 
+ULyraCharacterPreviewComponent* ULyraCharacterPreviewComponent::FindCharacterPreviewComponent(const AActor* Actor)
+{	
+	if (!Actor) return nullptr;
+	return Actor->FindComponentByClass<ULyraCharacterPreviewComponent>();
+}
+
 void ULyraCharacterPreviewComponent::InitPreview(APawn* SourcePawn)
 {
 	if (!SourcePawn) return;
@@ -156,6 +162,11 @@ void ULyraCharacterPreviewComponent::AddRotationDelta(float Delta)
 	{
 		PreviewActor->SetPreviewYaw(CurrentRotation);
 	}
+}
+
+bool ULyraCharacterPreviewComponent::IsPreviewReady() const
+{
+	return IsValid(PreviewActor);
 }
 
 // ----------------------------------------------------------------------
